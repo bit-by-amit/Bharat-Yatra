@@ -1,0 +1,58 @@
+<!-- frontend/pnr.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PNR Status</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Check PNR Status</h1>
+    <a href="index.html">Home</a>
+  </header>
+
+  <main class="search-box">
+    <form id="pnrForm">
+      <input type="text" id="pnr" placeholder="Enter PNR Number" required />
+      <button type="submit">Check</button>
+    </form>
+
+    <div id="pnrResult"></div>
+  </main>
+
+  <script>
+    const urlPNR = new URLSearchParams(window.location.search).get("pnr");
+    if (urlPNR) {
+      document.getElementById("pnr").value = urlPNR;
+      checkPNR(urlPNR);
+    }
+
+    document.getElementById("pnrForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const pnr = document.getElementById("pnr").value;
+      checkPNR(pnr);
+    });
+
+    function checkPNR(pnr) {
+      fetch(`http://localhost:5000/api/pnr/${pnr}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const div = document.getElementById("pnrResult");
+          if (data.success) {
+            div.innerHTML = `
+              <h3>PNR: ${data.pnr}</h3>
+              <p>Passenger: ${data.passenger.name}</p>
+              <p>Train No: ${data.train_no}</p>
+              <p>Class: ${data.travelClass}</p>
+              <p>Status: Confirmed</p>
+            `;
+          } else {
+            div.innerHTML = "<p>PNR not found.</p>";
+          }
+        });
+    }
+  </script>
+</body>
+</html>

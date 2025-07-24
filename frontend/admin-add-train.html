@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Train | Ease-my-Rail</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .form-container h2 {
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    input, button {
+      padding: 0.8rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Add New Train</h2>
+    <form action="http://localhost:5000/add-train" method="POST">
+      <input type="text" name="trainName" placeholder="Train Name" required />
+      <input type="text" name="trainNumber" placeholder="Train Number" required />
+      <input type="text" name="from" placeholder="From Station" required />
+      <input type="text" name="to" placeholder="To Station" required />
+      <input type="date" name="date" required />
+      <input type="number" name="seats" placeholder="Total Seats" required />
+      <input type="number" name="fare" placeholder="Fare (INR)" required />
+      <button type="submit">Add Train</button>
+    </form>
+  </div>
+</body>
+</html>

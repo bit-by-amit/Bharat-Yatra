@@ -1,0 +1,55 @@
+<!-- frontend/results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Available Trains</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Available Trains</h1>
+    <a href="index.html">Back to Home</a>
+  </header>
+
+  <main id="trainResults" class="search-box">
+    <p>Loading trains...</p>
+  </main>
+
+  <script>
+    const search = JSON.parse(localStorage.getItem("search"));
+
+    fetch("http://localhost:5000/api/trains")
+      .then(res => res.json())
+      .then(data => {
+        const matching = data.filter(
+          t =>
+            t.from.toLowerCase() === search.from.toLowerCase() &&
+            t.to.toLowerCase() === search.to.toLowerCase() &&
+            t.date === search.date
+        );
+
+        const container = document.getElementById("trainResults");
+        container.innerHTML = "";
+
+        if (matching.length === 0) {
+          container.innerHTML = "<p>No trains found.</p>";
+        } else {
+          matching.forEach(train => {
+            const div = document.createElement("div");
+            div.classList.add("train-card");
+            div.innerHTML = `
+              <h3>${train.name} (${train.train_no})</h3>
+              <p>${train.from} → ${train.to}</p>
+              <p>Departure: ${train.departure} | Arrival: ${train.arrival}</p>
+              <p>Seats: SL - ${train.seats.SL}, 3AC - ${train.seats["3AC"]}</p>
+              <a href="book.html?train_no=${train.train_no}">Book Now</a>
+            `;
+            container.appendChild(div);
+          });
+        }
+      });
+  </script>
+</body>
+</html>

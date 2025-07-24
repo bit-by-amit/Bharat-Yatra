@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - Ease-my-Rail</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .register-box {
+      max-width: 500px;
+      margin: 2rem auto;
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .register-box h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .register-box form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .register-box input, .register-box button {
+      padding: 0.8rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .otp-section {
+      display: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .otp-loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #004080;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo-section">
+      <img src="https://img.icons8.com/ios-filled/50/train.png" class="logo" />
+      <h1>Ease-my-Rail</h1>
+    </a>
+  </header>
+
+  <main class="register-box">
+    <h2>Create Your Account</h2>
+    <form id="registerForm">
+      <input type="text" placeholder="First Name" id="firstName" required />
+      <input type="text" placeholder="Last Name" id="lastName" required />
+      <input type="date" id="dob" required />
+      <input type="tel" placeholder="Mobile Number" id="mobile" required />
+      <input type="email" placeholder="Email" id="email" required />
+      <input type="password" placeholder="Create Password" id="password" required />
+      <button type="button" onclick="sendOTP()">Send OTP</button>
+
+      <div class="otp-loader" id="otpLoader"></div>
+
+      <div class="otp-section" id="otpSection">
+        <input type="text" placeholder="Enter OTP" id="otpInput" required />
+        <button type="submit">Verify & Register</button>
+      </div>
+    </form>
+  </main>
+
+ <script>
+  let verified = false;
+
+  function sendOTP() {
+    const email = document.getElementById("email").value;
+    const mobile = document.getElementById("mobile").value;
+
+    if (!email || !mobile) {
+      alert("Please enter valid email and mobile number.");
+      return;
+    }
+
+    document.getElementById("otpLoader").style.display = "block";
+
+    fetch("http://localhost:5000/api/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, mobile })
+    })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("otpLoader").style.display = "none";
+        if (data.success) {
+          document.getElementById("otpSection").style.display = "block";
+          alert("OTP sent! (For testing: " + data.otp + ")");
+        } else {
+          alert("Failed to send OTP. Try again.");
+        }
+      });
+  }
+
+  document.getElementById("registerForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    if (!verified) {
+      const email = document.getElementById("email").value;
+      const otp = document.getElementById("otpInput").value;
+
+      fetch("http://localhost:5000/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            verified = true;
+            alert("OTP verified! Registering account...");
+
+            submitRegistration(); // Call actual register
+          } else {
+            alert("Incorrect OTP. Try again.");
+          }
+        });
+    } else {
+      submitRegistration(); // Skip OTP check if already verified
+    }
+  });
+
+  function submitRegistration() {
+    const firstName = document.getElementById("firstName").value;
+    const lastName = document.getElementById("lastName").value;
+    const dob = document.getElementById("dob").value;
+    const mobile = document.getElementById("mobile").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    fetch("http://localhost:5000/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firstName, lastName, dob, mobile, email, password })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Registration successful!");
+          window.location.href = "login.html";
+        } else {
+          alert("Registration failed: " + data.message);
+        }
+      });
+  }
+</script>
+
+</body>
+</html>

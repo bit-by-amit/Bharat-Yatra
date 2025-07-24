@@ -1,0 +1,57 @@
+<!-- frontend/book.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Ticket</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Book Your Train Ticket</h1>
+    <a href="index.html">Home</a>
+  </header>
+
+  <main class="search-box">
+    <form id="bookingForm">
+      <input type="text" id="name" placeholder="Passenger Name" required />
+      <input type="number" id="age" placeholder="Passenger Age" required />
+      <select id="travelClass">
+        <option value="SL">Sleeper (SL)</option>
+        <option value="3AC">3AC</option>
+      </select>
+      <button type="submit">Confirm Booking</button>
+    </form>
+  </main>
+
+  <script>
+    const trainNo = new URLSearchParams(window.location.search).get("train_no");
+
+    document.getElementById("bookingForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const age = document.getElementById("age").value;
+      const travelClass = document.getElementById("travelClass").value;
+
+      const bookingData = {
+        name,
+        age,
+        travelClass,
+        train_no: trainNo,
+      };
+
+      fetch("http://localhost:5000/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          alert(`Booking confirmed! PNR: ${data.pnr}`);
+          window.location.href = "pnr.html?pnr=" + data.pnr;
+        });
+    });
+  </script>
+</body>
+</html>
